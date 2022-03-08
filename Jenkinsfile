@@ -3,6 +3,10 @@ def gv
 pipeline {
   agent any
 
+  parameters {
+    booleanParam(name: "IS_DESTROYING", defaultValue: "false", description: "Set to false to destroy, default true.")
+  }
+
   stages {
     stage("init") {
       steps {
@@ -14,7 +18,18 @@ pipeline {
     stage("Plan & Apply") {
       steps {
         script {
-          gv.planAndApply()
+            dir("deployments/vpc") {
+                gv.planAndApply()
+            }
+        }
+      }
+    }
+  }
+  post {
+    always {
+      script {
+        dir("deployments/vpc") {
+            gv.postAlways()
         }
       }
     }
