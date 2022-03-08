@@ -36,7 +36,8 @@ pipeline {
     success {
       script {
         dir("deployments/vpc") {
-            gv.postSuccess
+          gv.postSuccess
+        }
       }
     }
   }
