@@ -13,7 +13,7 @@ def postAlways() {
 
 def postSuccess() {
     sh "terraform output -json > tf_output.json"
-    sh "aws s3 cp tf_output.json s3://beb-bucket-jd/terraform/ --joshua"
+    sh "aws s3 cp tf_output.json s3://beb-bucket-jd/terraform/ --profile joshua"
 }
 
 return this
