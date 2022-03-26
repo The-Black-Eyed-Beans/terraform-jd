@@ -7,7 +7,7 @@ def init() {
             -backend-config="bucket=${BUCKET}" \
             -backend-config="key=terraform/tf-output.json" \
             -backend-config="region=${REGION}" \
-            -backend-config="profile=${AWS_PROFILE}
+            -backend-config='profile=$AWS_PROFILE'
     """
 }
 

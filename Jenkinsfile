@@ -13,8 +13,9 @@ pipeline {
 
   environment {
     AWS_PROFILE = credentials("AWS_PROFILE")
-    AWS_CONFIG_FILE = credentials("AWS_CONFIG_FILE")
-    AWS_SHARED_CREDENTIALS_FILE= credentials("AWS_SHARED_CREDENTIALS_FILE")
+    AWS_REGION = credentials("AWS_REGION")
+    AWS_ACCESS_KEY_ID = credentials("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = credentials("AWS_SECRET_ACCESS_KEY")
   }
 
   parameters {
@@ -29,8 +30,8 @@ pipeline {
           gv = load "script.groovy"
         }
         dir("deployments/ecs") {
-          sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $PROFILE'
-          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars terraform.tfvars --quiet --profile $PROFILE'
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars terraform.tfvars --quiet --profile $AWS_PROFILE'
           script {
             gv.init()
           }
