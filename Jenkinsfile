@@ -11,6 +11,10 @@ pipeline {
     terraform 'Terraform'
   }
 
+  environment {
+    PROFILE = credentials("profile")
+  }
+
   parameters {
     booleanParam(name: "IS_DESTROYING", defaultValue: "false", description: "Set to false to destroy, default true.")
   }
@@ -23,8 +27,8 @@ pipeline {
           gv = load "script.groovy"
         }
         dir("deployments/ecs") {
-          sh "aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile joshua"
-          sh "aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars terraform.tfvars --quiet --profile joshua"
+          sh "aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile ${PROFILE}"
+          sh "aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars terraform.tfvars --quiet --profile ${PROFILE}"
           script {
             gv.init()
           }
