@@ -9,6 +9,16 @@ variable "AWS_PROFILE" {
    description = "AWS Profile to use."
 }
 
+variable "SHARED_CONFIG_FILES" {
+   type        = string   
+   description = "Path to aws config files."
+}
+
+variable "SHARED_CREDENTIALS_FILES" {
+   type        = string   
+   description = "Path to aws credentials files."
+}
+
 #####################
 
 variable "vpc" {

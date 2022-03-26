@@ -6,8 +6,7 @@ def init() {
             -no-color \
             -backend-config="bucket=${BUCKET}" \
             -backend-config="key=terraform/tf-output.json" \
-            -backend-config="region=${REGION}" \
-            -backend-config="profile=${PROFILE}" \
+            -backend-config="region=${REGION}" 
     """
 }
 
