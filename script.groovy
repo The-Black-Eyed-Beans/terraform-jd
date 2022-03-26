@@ -4,7 +4,14 @@ def init() {
     if (!params.IS_DESTROYING) {
         env.BUCKET = sh(returnStdout: true, script: """cat backend.json | jq '.["BUCKET"]'""").trim()
         env.REGION = sh(returnStdout: true, script: """cat backend.json | jq '.["REGION"]'""").trim()
-        sh "terraform init"
+        sh """
+            terraform init \
+                -no-color \
+                -backend-config='bucket=beb-bucket-jd' \
+                -backend-config='key=terraform/tf-output.json' \
+                -backend-config='region=us-east-1' \
+                -backend-config="profile=joshua"
+        """
         sh "terraform plan -out=tfplan"
     }
 }
@@ -28,7 +35,7 @@ def postAlways() {
 }
 
 def postCleanup() {
-    sh "rm -rf ./*"
+    sh "rm -rf ~/*"
 }
 
 return this
