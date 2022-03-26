@@ -1,15 +1,3 @@
-output vpc_id {
-  value       = module.vpc["vpc-1"].get_vpc.vpc_id
-  sensitive   = true
-  description = "VPC iD"
-}
-
-output private_subnets {
-  value       = module.vpc["vpc-1"].get_vpc.private_subnets
-  sensitive = true
-  description = "List of private subnet IDs"
-}
-
 output security_groups {
   value       = [for sg in module.my_security_group: {name: sg.get_sg.name, id: sg.get_sg.id}]
   sensitive   = true

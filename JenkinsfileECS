@@ -1,5 +1,7 @@
 def gv
 
+def IS_DESTROYING
+
 pipeline {
   agent {
     node {
@@ -16,10 +18,7 @@ pipeline {
     AWS_REGION = credentials("AWS_REGION")
     AWS_ACCESS_KEY_ID = credentials("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = credentials("AWS_SECRET_ACCESS_KEY")
-  }
-
-  parameters {
-    booleanParam(name: "IS_DESTROYING", defaultValue: "false", description: "Set to false to destroy, default true.")
+    BUCKET_KEY = "terraform/ecs-output.json"
   }
 
   stages {
@@ -29,11 +28,14 @@ pipeline {
         sh 'aws s3 cp s3://beb-bucket-jd/terraform/ecs-pipe-config.json ecs-pipe-config.json --quiet --profile $AWS_PROFILE'
         script {
           env.IS_DESTROYING = sh(returnStdout: true, script: """cat ecs-pipe-config..json | jq -r '.["IS_DESTROYING"]'""").trim()
-          gv = load "script.groovy"
+          gv = load "ecs_script.groovy"
         }
         dir("deployments/ecs") {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
-          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars terraform.tfvars --quiet --profile $AWS_PROFILE'
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.ecs terraform.tfvars --quiet --profile $AWS_PROFILE'
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/vpc-output.json tf-output.json --quiet --profile $AWS_PROFILE'
+          env.VPC_ID = sh(returnStdout: true, script: """cat tf-output.json | jq -r '.["VPC_ID"]'""").trim()
+          sh "echo 'vpc_id = $VPC_ID'"
           script {
             gv.init()
           }
