@@ -13,7 +13,7 @@ pipeline {
 
   environment {
     PROFILE = credentials("profile")
-    HOME = credentials("home")
+    AWS_HOME = credentials("home")
   }
 
   parameters {
