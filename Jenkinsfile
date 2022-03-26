@@ -13,8 +13,7 @@ pipeline {
 
   environment {
     PROFILE = credentials("profile")
-    SHARED_CONFIG_FILES = credentials("shared_config_files")
-    SHARED_CREDENTIALS_FILES = credentials("shared_credentials_files")
+    HOME = credentials("home")
   }
 
   parameters {
