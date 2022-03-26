@@ -1,14 +1,3 @@
-variable "AWS_REGION" {
-   type        = string   
-   default     = "us-east-2"
-   description = "Project region."
-}
-
-variable "AWS_PROFILE" {
-   type        = string   
-   description = "AWS Profile to use."
-}
-
 variable "vpc" {
   type = map(object({
       name                      = string,

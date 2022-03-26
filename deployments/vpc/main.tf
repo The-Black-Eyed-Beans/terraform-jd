@@ -1,11 +1,3 @@
-module "vpc" {
-  for_each                  = var.vpc
-  source                    = "../../modules/vpc"
-  vpc                       = merge(each.value, local.vpc_tags)
-
-  depends_on                = [local.vpc_tags]
-}
-
 locals {
   vpc_tags             = {
     public_subnet_tag_keys    = var.public_subnet_tag_keys
@@ -15,4 +7,12 @@ locals {
     vpc_tag_keys              = var.vpc_tag_keys 
     vpc_tag_values            = var.vpc_tag_values
   }
+}
+
+module "vpc" {
+  for_each                  = var.vpc
+  source                    = "../../modules/vpc"
+  vpc                       = merge(each.value, local.vpc_tags)
+
+  depends_on                = [local.vpc_tags]
 }

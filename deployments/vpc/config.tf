@@ -5,17 +5,11 @@ terraform {
         version              = ">= 3.0"
     }
   }
-  
   required_version           = ">= 0.12"
 }
 
-provider "aws" {
-    region                   = var.AWS_REGION
-    shared_config_files      = ["$AWS_HOME/.aws/config"]
-    shared_credentials_files = ["$AWS_HOME/.aws/credentials"]
-    profile                  = var.AWS_PROFILE
-}
+provider "aws" {}
 
 terraform {
-    backend "s3" {}
+  backend "s3" {}
 }
