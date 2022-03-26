@@ -29,7 +29,7 @@ pipeline {
         script {
           gv = load "script.groovy"
         }
-        dir("deployments/ecs") {
+        dir("deployments/vpc") {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.vpc terraform.tfvars --quiet --profile $AWS_PROFILE'
           script {
@@ -42,7 +42,7 @@ pipeline {
       steps {
         script {
           try{
-            dir("deployments/ecs") {
+            dir("deployments/vpc") {
                 gv.plan()
             }
           }catch (Exception e){
@@ -55,7 +55,7 @@ pipeline {
       steps {
         script {
           try{
-            dir("deployments/ecs") {
+            dir("deployments/vpc") {
                 gv.apply()
             }
           }catch (Exception e){
@@ -68,7 +68,7 @@ pipeline {
   post {
     always {
       script {
-        dir("deployments/ecs") {
+        dir("deployments/vpc") {
             gv.postAlways()
         }
       }
