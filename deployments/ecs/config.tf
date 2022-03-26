@@ -10,8 +10,8 @@ terraform {
 
 provider "aws" {
   region                   = var.AWS_REGION
-  shared_config_files      = ["$HOME/.aws/config"]
-  shared_credentials_files = ["$HOME/.aws/credentials"]
+  shared_config_files      = ["$AWS_HOME/.aws/config"]
+  shared_credentials_files = ["$AWS_HOME/.aws/credentials"]
 }
 
 terraform {
