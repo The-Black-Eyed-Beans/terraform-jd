@@ -32,25 +32,25 @@ pipeline {
       }
     }
     stage("Construct Plan") {
-      try{
-        script {
+      script {
+        try{
           dir("deployments/ecs") {
               gv.plan()
           }
+        }catch (Exception e){
+            echo "Plan failed! Do something =O"
         }
-      }catch (Exception e){
-          echo "Plan failed! Do something =O"
       }
     }
     stage("Apply Plan") {
-      try{
-        script {
+      script {
+        try{
           dir("deployments/ecs") {
               gv.apply()
           }
+        }catch (Exception e){
+            echo "Apply failed! Do something =O"
         }
-      }catch (Exception e){
-          echo "Apply failed! Do something =O"
       }
     }
   }
