@@ -77,7 +77,7 @@ resource "aws_route53_record" "validate_cert" {
   ttl             = "300" 
   allow_overwrite = true 
   records        = [local.gateway-cert.resource_record_value]
-  depends_on            = [aws_acm_certificate.cert]
+  depends_on            = [local.gateway-cert]
 }
 
 resource "aws_kms_key" "ecs-key" {

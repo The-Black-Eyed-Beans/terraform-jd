@@ -35,7 +35,7 @@ def postAlways() {
 }
 
 def postCleanup() {
-    sh "rm -rf ~/*"
+    sh "rm -rf ./*"
 }
 
 return this
