@@ -71,7 +71,7 @@ locals {
 }
 
 resource "aws_route53_record" "validate_cert" {
-  zone_id         = module.my_load_balancer.get_lbs[0].zone_id
+  zone_id         = var.route53_gateway_a_record.zone_id
   name            = local.gateway-cert.resource_record_name
   type            = local.gateway-cert.resource_record_type
   ttl             = "300" 
