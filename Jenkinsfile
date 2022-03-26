@@ -36,7 +36,7 @@ pipeline {
         }
       }
     }
-    stage('Roll Back'){
+    stage('Plan Roll Back'){
         when{
             expression {
                 !("SUCCESS".equals(currentBuild.previousBuild.result))
@@ -55,7 +55,7 @@ pipeline {
         }
       }
     }
-    stage('Roll Back'){
+    stage('Apply Roll Back'){
         when{
             expression {
                 !("SUCCESS".equals(currentBuild.previousBuild.result))
