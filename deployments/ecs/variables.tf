@@ -19,8 +19,6 @@ variable "SHARED_CREDENTIALS_FILES" {
    description = "Path to aws credentials files."
 }
 
-
-
 #####################
 
 variable "vpc" {
