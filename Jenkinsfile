@@ -12,8 +12,9 @@ pipeline {
   }
 
   environment {
-    PROFILE = credentials("profile")
-    AWS_HOME = credentials("home")
+    AWS_PROFILE = credentials("AWS_PROFILE")
+    AWS_CONFIG_FILE = credentials("AWS_CONFIG_FILE")
+    AWS_SHARED_CREDENTIALS_FILE= credentials("AWS_SHARED_CREDENTIALS_FILE")
   }
 
   parameters {

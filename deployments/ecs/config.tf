@@ -8,12 +8,7 @@ terraform {
   required_version           = ">= 0.12"
 }
 
-provider "aws" {
-  region                   = var.AWS_REGION
-  shared_config_files      = [var.SHARED_CONFIG_FILES]
-  shared_credentials_files = [var.SHARED_CREDENTIALS_FILES]
-  profile                  = var.AWS_PROFILE
-}
+provider "aws" {}
 
 terraform {
   backend "s3" {}
