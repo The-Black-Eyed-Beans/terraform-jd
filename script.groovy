@@ -2,13 +2,9 @@
 
 def init() {
     if (!params.IS_DESTROYING) {
-        env.BUCKET = sh(returnStdout: true, script: """cat backend.env | jq '.["BUCKET"]'""").trim()
-        env.PATH = sh(returnStdout: true, script: """cat backend.env | jq '.["PATH"]'""").trim()
-        env.REGION = sh(returnStdout: true, script: """cat backend.env | jq '.["REGION"]'""").trim()
-        sh "terraform init \
-            -backend-config='bucket=$BUCKET' \
-            -backend-config='key=$PATH' \
-            -backend-config='region=$REGION'"
+        env.BUCKET = sh(returnStdout: true, script: """cat backend.json | jq '.["BUCKET"]'""").trim()
+        env.REGION = sh(returnStdout: true, script: """cat backend.json | jq '.["REGION"]'""").trim()
+        sh "terraform init"
         sh "terraform plan -out=tfplan"
     }
 }

@@ -6,6 +6,10 @@ pipeline {
       label "worker-one"
     }
   }
+  
+  tools {
+    terraform 'Terraform'
+  }
 
   parameters {
     booleanParam(name: "IS_DESTROYING", defaultValue: "false", description: "Set to false to destroy, default true.")
