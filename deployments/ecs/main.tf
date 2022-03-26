@@ -40,6 +40,13 @@ module "my_load_balancer" {
     depends_on            = [module.my_security_group]
 }
 
+module "secrets" {
+  source                    = "../../modules/ecs_secrets"
+  
+  secrets                   = var.secrets
+  proxy-secrets             = var.proxy-secrets
+}
+
 resource "aws_route53_record" "gateway_alb_record" {
   zone_id         = var.route53_gateway_a_record.zone_id
   name            = var.route53_gateway_a_record.name
@@ -54,7 +61,7 @@ resource "aws_route53_record" "gateway_alb_record" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "gateway.theblackeyedbeans.net"
+  domain_name       = var.gateway_alb_dns
   validation_method = "DNS"
 
   tags = {
@@ -90,7 +97,7 @@ resource "aws_cloudwatch_log_group" "ecs-logs" {
 }
 
 resource "aws_ecs_cluster" "cluster" {
-  name = "Aline-Financial-jd"
+  name = var.cluster_name
 
   configuration {
     execute_command_configuration {
@@ -104,3 +111,4 @@ resource "aws_ecs_cluster" "cluster" {
     }
   }
 }
+
