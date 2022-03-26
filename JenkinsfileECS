@@ -26,14 +26,14 @@ pipeline {
     stage("init") {
       steps {
         checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/terraform-jd.git']]])
+        sh 'aws s3 cp s3://beb-bucket-jd/terraform/ecs-pipe-config.json ecs-pipe-config.json --quiet --profile $AWS_PROFILE'
         script {
+          env.IS_DESTROYING = sh(returnStdout: true, script: """cat ecs-pipe-config..json | jq -r '.["IS_DESTROYING"]'""").trim()
           gv = load "script.groovy"
         }
-        sh """echo {IS_DESTROYING: "${IS_DESTROYING}"} > ecs-pipe-config.json"""
-        sh 'aws s3 cp ecs-pipe-config.json s3://beb-bucket-jd/terraform/ecs-pipe-config.json --quiet --profile $AWS_PROFILE'
-        dir("deployments/vpc") {
+        dir("deployments/ecs") {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
-          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.vpc terraform.tfvars --quiet --profile $AWS_PROFILE'
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars terraform.tfvars --quiet --profile $AWS_PROFILE'
           script {
             gv.init()
           }
@@ -44,7 +44,7 @@ pipeline {
       steps {
         script {
           try{
-            dir("deployments/vpc") {
+            dir("deployments/ecs") {
                 gv.plan()
             }
           }catch (Exception e){
@@ -57,7 +57,7 @@ pipeline {
       steps {
         script {
           try{
-            dir("deployments/vpc") {
+            dir("deployments/ecs") {
                 gv.apply()
             }
           }catch (Exception e){
@@ -70,7 +70,7 @@ pipeline {
   post {
     always {
       script {
-        dir("deployments/vpc") {
+        dir("deployments/ecs") {
             gv.postAlways()
         }
       }
