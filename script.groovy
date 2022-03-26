@@ -3,8 +3,8 @@
 
 
 def init() {
-    env.BUCKET = sh(returnStdout: true, script: """cat backend.json | jq '.["BUCKET"]'""").trim()
-    env.REGION = sh(returnStdout: true, script: """cat backend.json | jq '.["REGION"]'""").trim()
+    env.BUCKET = sh(returnStdout: true, script: """cat backend.json | jq -r '.["BUCKET"]'""").trim()
+    env.REGION = sh(returnStdout: true, script: """cat backend.json | jq -r '.["REGION"]'""").trim()
     sh """
         terraform init \
             -no-color \
