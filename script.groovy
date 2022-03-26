@@ -8,10 +8,10 @@ def init() {
     sh """
         terraform init \
             -no-color \
-            -backend-config='bucket=beb-bucket-jd' \
+            -backend-config='bucket=${BUCKET}' \
             -backend-config='key=terraform/tf-output.json' \
-            -backend-config='region=us-east-1' \
-            -backend-config="profile=joshua"
+            -backend-config='region=${REGION}' \
+            -backend-config="profile=${PROFILE}"
     """
 }
 
