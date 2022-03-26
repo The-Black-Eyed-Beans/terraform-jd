@@ -13,6 +13,8 @@ pipeline {
 
   environment {
     PROFILE = credentials("profile")
+    SHARED_CONFIG_FILES = credentials("shared_config_files")
+    SHARED_CREDENTIALS_FILES = credentials("shared_credentials_files")
   }
 
   parameters {
@@ -27,8 +29,8 @@ pipeline {
           gv = load "script.groovy"
         }
         dir("deployments/ecs") {
-          sh "aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile ${PROFILE}"
-          sh "aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars terraform.tfvars --quiet --profile ${PROFILE}"
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $PROFILE'
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars terraform.tfvars --quiet --profile $PROFILE'
           script {
             gv.init()
           }
