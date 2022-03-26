@@ -4,6 +4,14 @@ variable "AWS_REGION" {
    description = "Project region."
 }
 
+#####################
+
+variable "AWS_REGION" {
+   type        = string   
+   default     = "us-east-2"
+   description = "Project region."
+}
+
 variable "vpc" {
   type = map(object({
       name                      = string,
