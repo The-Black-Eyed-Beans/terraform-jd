@@ -33,41 +33,29 @@ pipeline {
     }
     stage("Construct Plan") {
       steps {
-        script {
-          dir("deployments/ecs") {
-              gv.plan()
-          }
-        }
-      }
-    }
-    stage('Plan Roll Back'){
-        when{
-            expression {
-                !("SUCCESS".equals(currentBuild.previousBuild.result))
+        try{
+          script {
+            dir("deployments/ecs") {
+                gv.plan()
             }
-        }
-        steps{
+          }
+        }catch (Exception e){
             echo "Plan failed! Do something =O"
         }
+      }
     }
     stage("Apply Plan") {
       steps {
-        script {
-          dir("deployments/ecs") {
-              gv.apply()
-          }
-        }
-      }
-    }
-    stage('Apply Roll Back'){
-        when{
-            expression {
-                !("SUCCESS".equals(currentBuild.previousBuild.result))
+        try{
+          script {
+            dir("deployments/ecs") {
+                gv.apply()
             }
-        }
-        steps{
+          }
+        }catch (Exception e){
             echo "Apply failed! Do something =O"
         }
+      }
     }
   }
   post {
@@ -80,9 +68,7 @@ pipeline {
     }
     cleanup {
       script {
-        dir("deployments/ecs") {
-          gv.postCleanup()
-        }
+        gv.postCleanup()
       }
     }
   }
