@@ -1,7 +1,11 @@
 def gv
 
 pipeline {
-  agent any
+  agent {
+    node {
+      label "worker-one"
+    }
+  }
 
   parameters {
     booleanParam(name: "IS_DESTROYING", defaultValue: "false", description: "Set to false to destroy, default true.")
@@ -15,7 +19,7 @@ pipeline {
           gv = load "script.groovy"
         }
         dir("deployments/ecs") {
-          sh "aws s3 cp s3://beb-bucket-jd/terraform/backend.env backend.json --quiet -- profile joshua"
+          sh "aws s3 cp s3://beb-bucket-jd/terraform/backend.env backend.env --quiet --profile joshua"
           sh "aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars terraform.tfvars --quiet --profile joshua"
           script {
             gv.init()
@@ -32,7 +36,7 @@ pipeline {
         }
       }
     }
-    stage('Roll Back'){
+    stage('Plan Roll Back'){
         when{
             expression {
                 !("SUCCESS".equals(currentBuild.previousBuild.result))
@@ -51,7 +55,7 @@ pipeline {
         }
       }
     }
-    stage('Roll Back'){
+    stage('Apply Roll Back'){
         when{
             expression {
                 !("SUCCESS".equals(currentBuild.previousBuild.result))
