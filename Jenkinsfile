@@ -1,7 +1,11 @@
 def gv
 
 pipeline {
-  agent any
+  agent {
+    node {
+      label "worker-one"
+    }
+  }
 
   parameters {
     booleanParam(name: "IS_DESTROYING", defaultValue: "false", description: "Set to false to destroy, default true.")
