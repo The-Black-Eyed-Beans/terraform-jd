@@ -1,7 +1,24 @@
-def planAndApply() {
+
+
+def init() {
     if (!params.IS_DESTROYING) {
-        sh "terraform init -input=false"
-        sh "terraform plan -out=tfplan -input=false && terraform apply tfplan"
+        sh """terraform init \
+            -backend-config='bucket=$BUCKET' \
+            -backend-config='key=$PATH' \
+            -backend-config='region=$REGION'"""
+        sh "terraform plan -out=tfplan"
+    }
+}
+
+def plan() {
+    if (!params.IS_DESTROYING) {
+        sh "terraform plan -out=tfplan -input=false"
+    }
+}
+
+def apply() {
+    if (!params.IS_DESTROYING) {
+        sh "terraform apply tfplan"
     }
 }
 
@@ -11,9 +28,8 @@ def postAlways() {
     }
 }
 
-def postSuccess() {
-    sh "terraform output -json > tf_output.json"
-    sh "aws s3 cp tf_output.json s3://beb-bucket-jd/terraform/ --profile joshua"
+def postCleanup() {
+    sh "rm -rf ./*"
 }
 
 return this

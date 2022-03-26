@@ -10,33 +10,70 @@ pipeline {
   stages {
     stage("init") {
       steps {
-          script {
-            gv = load "script.groovy"
-            }
-        }
-    }
-    stage("Plan & Apply") {
-      steps {
+        checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/terraform-jd.git']]])
         script {
-            dir("deployments/vpc") {
-                gv.planAndApply()
-            }
+          gv = load "script.groovy"
+        }
+        dir("deployments/ecs") {
+          sh "aws s3 cp s3://beb-bucket-jd/terraform/backend.env backend.json --quiet -- profile joshua"
+          sh "aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars terraform.tfvars --quiet --profile joshua"
+          script {
+            gv.init()
+          }
         }
       }
+    }
+    stage("Construct Plan") {
+      steps {
+        script {
+          dir("deployments/ecs") {
+              gv.plan()
+          }
+        }
+      }
+    }
+    stage('Roll Back'){
+        when{
+            expression {
+                !("SUCCESS".equals(currentBuild.previousBuild.result))
+            }
+        }
+        steps{
+            echo "Plan failed! Do something =O"
+        }
+    }
+    stage("Apply Plan") {
+      steps {
+        script {
+          dir("deployments/ecs") {
+              gv.apply()
+          }
+        }
+      }
+    }
+    stage('Roll Back'){
+        when{
+            expression {
+                !("SUCCESS".equals(currentBuild.previousBuild.result))
+            }
+        }
+        steps{
+            echo "Apply failed! Do something =O"
+        }
     }
   }
   post {
     always {
       script {
-        dir("deployments/vpc") {
+        dir("deployments/ecs") {
             gv.postAlways()
         }
       }
     }
-    success {
+    cleanup {
       script {
-        dir("deployments/vpc") {
-          gv.postSuccess()
+        dir("deployments/ecs") {
+          gv.postCleanup()
         }
       }
     }
