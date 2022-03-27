@@ -1,5 +1,17 @@
+variable "cluster_type" {
+  type = string
+}
+
+variable "eks_subnet_tag_keys" {
+  type = list(string)
+}
+
+variable "eks_subnet_tag_values" {
+  type = list(string)
+}
+
 variable "vpc" {
-  type = map(object({
+  type = object({
       name                      = string,
       cidr                      = string,
       private_subnets           = list(string),
@@ -7,7 +19,7 @@ variable "vpc" {
       enable_nat_gateway        = bool,
       single_nat_gateway        = bool,
       enable_dns_hostnames      = bool
-  }))
+  })
   description                   = "VPC details."
 }
 

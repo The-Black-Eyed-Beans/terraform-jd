@@ -1,5 +1,5 @@
 def gv
-
+def CLUSTER_TYPE
 def IS_DESTROYING
 
 pipeline {
@@ -25,6 +25,7 @@ pipeline {
     stage("init") {
       steps {
         checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/terraform-jd.git']]])
+        script {CLUSTER_TYPE = sh(returnStdout: true, script: """ aws secretsmanager  get-secret-value --secret-id prod/terraform/cluster_type --region us-east-2 --profile joshua | jq -r '.["SecretString"]' """).trim()}
         sh 'aws s3 cp s3://beb-bucket-jd/terraform/ecs-pipe-destroy ecs-pipe-destroy --quiet --profile $AWS_PROFILE'
         script {
           IS_DESTROYING = sh(returnStdout: true, script: "cat ecs-pipe-destroy").trim().toBoolean()
@@ -34,7 +35,6 @@ pipeline {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.ecs terraform.tfvars --quiet --profile $AWS_PROFILE'
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/vpc-output.json tf-output.json --quiet --profile $AWS_PROFILE'
-          sh """cat tf-output.json | jq -r '.["outputs"]["vpc_id"]["value"]' """
           script {
             env.VPC_ID = sh(returnStdout: true, script: """cat tf-output.json | jq '.["outputs"]["vpc_id"]["value"]'""").trim()
             sh "echo '\nvpc_id = $VPC_ID\n' >> terraform.tfvars"

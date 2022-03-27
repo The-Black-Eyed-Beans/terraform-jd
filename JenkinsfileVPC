@@ -1,4 +1,5 @@
 def gv
+def CLUSTER_TYPE
 
 pipeline {
   agent {
@@ -27,6 +28,7 @@ pipeline {
     stage("init") {
       steps {
         checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/terraform-jd.git']]])
+        script {CLUSTER_TYPE = sh(returnStdout: true, script: """ aws secretsmanager  get-secret-value --secret-id prod/terraform/cluster_type --region us-east-2 --profile joshua | jq -r '.["SecretString"]' """).trim()}
         script {
           gv = load "script.groovy"
         }
@@ -35,6 +37,7 @@ pipeline {
         dir("deployments/vpc") {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.vpc terraform.tfvars --quiet --profile $AWS_PROFILE'
+          sh "echo 'CLUSTER_TYPE = $CLUSTER_TYPE '>> terraform.tfvars"
           script {
             gv.init()
           }
