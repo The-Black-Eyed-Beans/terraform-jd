@@ -10,10 +10,6 @@ variable "gateway_alb_dns" {
   type = string
 }
 
-variable "public_subnets" {
-  type = list(string)
-}
-
 variable secrets {
    type = list(object({
       name = string,
