@@ -1,5 +1,6 @@
 def gv
 
+def IS_DESTROYING
 
 pipeline {
   agent {
@@ -26,7 +27,7 @@ pipeline {
         checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/terraform-jd.git']]])
         sh 'aws s3 cp s3://beb-bucket-jd/terraform/ecs-pipe-destroy ecs-pipe-destroy --quiet --profile $AWS_PROFILE'
         script {
-          env.IS_DESTROYING = sh(returnStdout: true, script: "cat ecs-pipe-destroy").trim()
+          IS_DESTROYING = sh(returnStdout: true, script: "cat ecs-pipe-destroy").trim()
           gv = load "ecs-script.groovy"
         }
         dir("deployments/ecs") {
