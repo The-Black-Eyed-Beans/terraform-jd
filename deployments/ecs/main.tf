@@ -1,5 +1,12 @@
-data "aws_vpc" "selected" {
-  id = var.vpc_id
+data "aws_subnets" "public" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+
+  tags = {
+    Tier = "Public"
+  }
 }
 
 module "my_security_group" {
@@ -18,7 +25,7 @@ module "my_load_balancer" {
         internal:var.alb_gateway.internal,
         load_balancer_type:var.alb_gateway.load_balancer_type,
         security_groups:[module.my_security_group[0].get_sg.id],
-        subnets:data.aws_vpc.selected.public_subnets}
+        subnets:data.aws_subnets.public.ids}
     ]
     depends_on            = [module.my_security_group]
 }
