@@ -5,7 +5,7 @@ def init() {
         terraform init \
             -no-color \
             -backend-config="bucket=${BUCKET}" \
-            -backend-config="key=terraform/tf-output.json" \
+            -backend-config="key=${BUCKET_KEY}" \
             -backend-config="region=${REGION}" \
             -backend-config='profile=$AWS_PROFILE'
     """
