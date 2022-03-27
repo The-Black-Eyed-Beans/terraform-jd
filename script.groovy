@@ -34,9 +34,10 @@ def postCleanup() {
 }
 
 def postSuccess(CLUSTER_TYPE) {
-    if (CLUSTER_TYPE == "ECS") {
-        sh "curl -u BuildUser:$BUILD_USER_TOKEN -i 'https://jenkins.theblackeyedbeans.net/job/aline-jd/job/Infrastructure as Code/job/ecs/build?token=$ECS_PIPELINE_TOKEN' > /dev/null"
-    } else {sh "curl -u BuildUser:$BUILD_USER_TOKEN -i 'https://jenkins.theblackeyedbeans.net/job/aline-jd/job/Infrastructure as Code/job/eks/build?token=$EKS_PIPELINE_TOKEN' > /dev/null"}
+    if (CLUSTER_TYPE == "ECS" && !params.IS_DESTROYING) {
+        sh 'curl -u BuildUser:$BUILD_USER_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/Infrastructure as Code/job/ecs/build?token=$ECS_PIPELINE_TOKEN" > /dev/null'
+    } else {sh 'curl -u BuildUser:$BUILD_USER_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/Infrastructure as Code/job/eks/build?token=$EKS_PIPELINE_TOKEN" > /dev/null'}
 }
+
 
 return this
