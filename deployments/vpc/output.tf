@@ -9,3 +9,9 @@ output private_subnets {
   sensitive = true
   description = "List of private subnet IDs"
 }
+
+output public_subnets {
+  value       = module.vpc["vpc-1"].get_vpc.public_subnets
+  sensitive = true
+  description = "List of private subnet IDs"
+}
