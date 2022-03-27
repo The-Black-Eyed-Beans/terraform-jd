@@ -18,6 +18,9 @@ pipeline {
     AWS_ACCESS_KEY_ID = credentials("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = credentials("AWS_SECRET_ACCESS_KEY")
     BUCKET_KEY = "terraform/vpc-output.json"
+    ECS_PIPELINE_TOKEN = credentials("ECS_PIPELINE_TOKEN")
+    EKS_PIPELINE_TOKEN = credentials("EKS_PIPELINE_TOKEN")
+    BUILD_USER_TOKEN = credentials("BUILD_USER_TOKEN")
   }
 
   parameters {
@@ -28,7 +31,7 @@ pipeline {
     stage("init") {
       steps {
         checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/terraform-jd.git']]])
-        script {CLUSTER_TYPE = sh(returnStdout: true, script: """ aws secretsmanager  get-secret-value --secret-id prod/terraform/cluster_type --region us-east-2 --profile joshua | jq -r '.["SecretString"]' """).trim()}
+        script {CLUSTER_TYPE = sh(returnStdout: true, script: """ aws secretsmanager  get-secret-value --secret-id prod/terraform/cluster_type --region us-east-2 --profile joshua | jq '.["SecretString"]' """).trim()}
         script {
           gv = load "script.groovy"
         }
@@ -52,7 +55,8 @@ pipeline {
                 gv.plan()
             }
           }catch (Exception e){
-              echo "Plan failed! Do something =O"
+            currentBuild.result = "ABORTED"
+            error("Plan failed! Do something =O")
           }
         }
       }
@@ -63,9 +67,11 @@ pipeline {
           try{
             dir("deployments/vpc") {
                 gv.apply()
+                
             }
           }catch (Exception e){
-              echo "Apply failed! Do something =O"
+            currentBuild.result = "ABORTED"
+            error("Apply failed! Do something =O")
           }
         }
       }
@@ -82,6 +88,13 @@ pipeline {
     cleanup {
       script {
         gv.postCleanup()
+      }
+    }
+    success {
+      script {
+        dir("deployments/vpc") {
+          gv.postSuccess(CLUSTER_TYPE)
+        }
       }
     }
   }

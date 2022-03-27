@@ -11,20 +11,20 @@ def init() {
     """
 }
 
-def plan(IS_DESTROYING) {
-    if (!IS_DESTROYING) {
+def plan() {
+    if (!params.IS_DESTROYING) {
         sh "terraform plan -out=tfplan"
     }
 }
 
-def apply(IS_DESTROYING) {
-    if (!IS_DESTROYING) {
+def apply() {
+    if (!params.IS_DESTROYING) {
         sh "terraform apply tfplan"
     }
 }
 
-def postAlways(IS_DESTROYING) {
-    if (IS_DESTROYING) {
+def postAlways() {
+    if (params.IS_DESTROYING) {
         sh "terraform destroy -auto-approve"
     }
 }
