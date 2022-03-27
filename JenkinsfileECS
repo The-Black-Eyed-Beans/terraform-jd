@@ -1,7 +1,3 @@
-import (
-	"strconv"
-)
-
 def gv
 
 def IS_DESTROYING
@@ -31,7 +27,7 @@ pipeline {
         checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/terraform-jd.git']]])
         sh 'aws s3 cp s3://beb-bucket-jd/terraform/ecs-pipe-destroy ecs-pipe-destroy --quiet --profile $AWS_PROFILE'
         script {
-          IS_DESTROYING = strconv.ParseBool(sh(returnStdout: true, script: "cat ecs-pipe-destroy").trim())
+          IS_DESTROYING = sh(returnStdout: true, script: "cat ecs-pipe-destroy").trim().toBoolean()
           gv = load "ecs-script.groovy"
         }
         dir("deployments/ecs") {
@@ -52,7 +48,7 @@ pipeline {
         script {
           try{
             dir("deployments/ecs") {
-                gv.plan()
+                gv.plan(IS_DESTROYING)
             }
           }catch (Exception e){
               echo "Plan failed! Do something =O"
@@ -65,7 +61,7 @@ pipeline {
         script {
           try{
             dir("deployments/ecs") {
-                gv.apply()
+                gv.apply(IS_DESTROYING)
             }
           }catch (Exception e){
               echo "Apply failed! Do something =O"
@@ -78,7 +74,7 @@ pipeline {
     always {
       script {
         dir("deployments/ecs") {
-            gv.postAlways()
+            gv.postAlways(IS_DESTROYING)
         }
       }
     }
