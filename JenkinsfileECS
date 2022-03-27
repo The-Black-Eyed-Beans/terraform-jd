@@ -34,8 +34,10 @@ pipeline {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.ecs terraform.tfvars --quiet --profile $AWS_PROFILE'
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/vpc-output.json tf-output.json --quiet --profile $AWS_PROFILE'
+          sh """cat tf-output.json | jq -r '.["outputs"]["vpc_id"]["value"]' """
           script {
-            env.VPC_ID = sh(returnStdout: true, script: """cat tf-output.json | jq -r '.["outputs"]["VPC_ID"]'""").trim()
+            env.VPC_ID = sh(returnStdout: true, script: """cat tf-output.json | jq '.["outputs"]["vpc_id"]["value"]'""").trim()
+            sh "echo '\nvpc_id = $VPC_ID\n' >> terraform.tfvars"
             gv.init()
           }
         }
