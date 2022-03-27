@@ -30,7 +30,7 @@ pipeline {
         script {
           gv = load "script.groovy"
         }
-        sh """echo {IS_DESTROYING: "${IS_DESTROYING}"} > ecs-pipe-config.json"""
+        sh """echo {"IS_DESTROYING": ${IS_DESTROYING}} > ecs-pipe-config.json"""
         sh 'aws s3 cp ecs-pipe-config.json s3://beb-bucket-jd/terraform/ecs-pipe-config.json --quiet --profile $AWS_PROFILE'
         dir("deployments/vpc") {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
