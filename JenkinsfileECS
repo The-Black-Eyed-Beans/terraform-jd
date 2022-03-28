@@ -81,7 +81,7 @@ pipeline {
         ARN_MYSQL_USER= "${sh(script: """cat tf-output.json | jq '.["outputs"]["service_secrets"]["value"]["mysql_user"]'""", returnStdout: true).trim()}"
         APP_PORT = 80
         CLUSTER = "${sh(script: """cat tf-output.json | jq '.["outputs"]["cluster"]["value"]'""", returnStdout: true).trim()}"
-        ECR_REGION = AWS_REGION
+        ECR_REGION = "${AWS_REGION}"
         LOAD_BALANCER = "${sh(script: """cat tf-output.json | jq '.["outputs"]["load_balancer"]["value"]'""", returnStdout: true).trim()}"
         SG_LOADBALANCER = "${sh(script: """cat tf-output.json | jq '.["outputs"]["security_groups"]["value"]["alb"]'""", returnStdout: true).trim()}"
         SG_PRIVATE = "${sh(script: """cat tf-output.json | jq '.["outputs"]["security_groups"]["value"]["private"]'""", returnStdout: true).trim()}"
