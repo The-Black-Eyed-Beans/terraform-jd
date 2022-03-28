@@ -1,5 +1,4 @@
 def gv
-def CLUSTER_TYPE
 
 pipeline {
   agent {
@@ -13,34 +12,31 @@ pipeline {
   }
 
   environment {
+    AWS_ACCESS_KEY_ID = credentials("AWS_ACCESS_KEY_ID")
     AWS_PROFILE = credentials("AWS_PROFILE")
     AWS_REGION = credentials("AWS_REGION")
-    AWS_ACCESS_KEY_ID = credentials("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = credentials("AWS_SECRET_ACCESS_KEY")
     BUCKET_KEY = "terraform/vpc-output.json"
+    BUILD_USER_TOKEN = credentials("BUILD_USER_TOKEN")
+    CLUSTER_TYPE = credentials("CLUSTER_TYPE")
     ECS_PIPELINE_TOKEN = credentials("ECS_PIPELINE_TOKEN")
     EKS_PIPELINE_TOKEN = credentials("EKS_PIPELINE_TOKEN")
-    BUILD_USER_TOKEN = credentials("BUILD_USER_TOKEN")
-  }
-
-  parameters {
-    booleanParam(name: "IS_DESTROYING", defaultValue: "false", description: "Set to false to destroy, default true.")
+    IS_DESTROYING = credentials("IS_DESTROYING")
   }
 
   stages {
     stage("init") {
       steps {
         checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/terraform-jd.git']]])
-        script {CLUSTER_TYPE = sh(returnStdout: true, script: """ aws secretsmanager  get-secret-value --secret-id prod/terraform/cluster_type --region us-east-2 --profile joshua | jq '.["SecretString"]' """).trim()}
         script {
           gv = load "script.groovy"
         }
-        sh "echo ${IS_DESTROYING} > ecs-pipe-destroy"
+        sh "echo $IS_DESTROYING > ecs-pipe-destroy"
         sh 'aws s3 cp ecs-pipe-destroy s3://beb-bucket-jd/terraform/ecs-pipe-destroy --quiet --profile $AWS_PROFILE'
         dir("deployments/vpc") {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.vpc terraform.tfvars --quiet --profile $AWS_PROFILE'
-          sh "echo '\ncluster_type = $CLUSTER_TYPE\n'>> terraform.tfvars"
+          sh "echo '\ncluster_type = \"$CLUSTER_TYPE\"\n'>> terraform.tfvars"
           script {
             gv.init()
           }
@@ -66,8 +62,7 @@ pipeline {
         script {
           try{
             dir("deployments/vpc") {
-                gv.apply()
-                
+                gv.apply() 
             }
           }catch (Exception e){
             currentBuild.result = "ABORTED"
@@ -93,7 +88,7 @@ pipeline {
     success {
       script {
         dir("deployments/vpc") {
-          gv.postSuccess(CLUSTER_TYPE)
+          gv.postSuccess()
         }
       }
     }
