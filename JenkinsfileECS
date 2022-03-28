@@ -25,9 +25,8 @@ pipeline {
     stage("init") {
       steps {
         checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/terraform-jd.git']]])
-        sh 'aws s3 cp s3://beb-bucket-jd/terraform/ecs-pipe-destroy ecs-pipe-destroy --quiet --profile $AWS_PROFILE'
         script {
-          gv = load "ecs-script.groovy"
+          gv = load "script.groovy"
         }
         dir("deployments/ecs") {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
@@ -49,7 +48,8 @@ pipeline {
                 gv.plan()
             }
           }catch (Exception e){
-              echo "Plan failed! Do something =O"
+            currentBuild.result = "ABORTED"
+            error("Plan failed! Do something =O")
           }
         }
       }
@@ -62,7 +62,8 @@ pipeline {
                 gv.apply()
             }
           }catch (Exception e){
-              echo "Apply failed! Do something =O"
+            currentBuild.result = "ABORTED"
+            error("Apply failed! Do something =O")
           }
         }
       }

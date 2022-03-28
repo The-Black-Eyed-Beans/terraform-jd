@@ -12,19 +12,19 @@ def init() {
 }
 
 def plan() {
-    if (!env.IS_DESTROYING) {
+    if (!env.IS_DESTROYING.toBoolean()) {
         sh "terraform plan -out=tfplan"
     }
 }
 
 def apply() {
-    if (!env.IS_DESTROYING) {
+    if (!env.IS_DESTROYING.toBoolean()) {
         sh "terraform apply tfplan"
     }
 }
 
 def postAlways() {
-    if (env.IS_DESTROYING) {
+    if (env.IS_DESTROYING.toBoolean()) {
         sh "terraform destroy -auto-approve"
     }
 }
