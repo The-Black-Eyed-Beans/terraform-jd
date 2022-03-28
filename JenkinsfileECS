@@ -99,7 +99,7 @@ pipeline {
       } 
       steps {
         script {
-          if (!env.IS_DESTROYING!) {
+          if (!env.IS_DESTROYING) {
             dir("deployments/ecs") {
             sh 'aws s3 cp s3://beb-bucket-jd/terraform/ecs/docker-compose.yaml docker-compose.yaml --quiet --profile $AWS_PROFILE'
             sh "docker context use prod-jd"
