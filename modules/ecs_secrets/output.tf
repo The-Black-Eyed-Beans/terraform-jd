@@ -1,5 +1,5 @@
 output service_secrets {
-  value       = [for secret in aws_secretsmanager_secret.service_secret_keys: {(secret.name): secret.arn}]
+  value       = [for secret in aws_secretsmanager_secret.service_secret_keys: {name:secret.name,arn: secret.arn}]
   sensitive   = false
   description = "List of Secret objects for Services"
 }
