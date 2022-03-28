@@ -1,5 +1,5 @@
 output security_groups {
-  value       = [for sg in module.my_security_group: {name: sg.get_sg.name, id: sg.get_sg.id}]
+  value       = [for sg in module.my_security_group: {sg.get_sg.name: sg.get_sg.id}]
   sensitive   = true
   description = "List of Security Group IDs"
 }
