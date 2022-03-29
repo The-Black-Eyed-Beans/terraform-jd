@@ -102,3 +102,16 @@ resource "aws_ecs_cluster" "cluster" {
   }
 }
 
+resource "aws_lb_listener" "ssh_redirect" {
+  load_balancer_arn = module.my_load_balancer.get_lbs[0].arn
+  port              = "80"
+  protocol          = "HTTP"
+  default_action {
+    type             = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}

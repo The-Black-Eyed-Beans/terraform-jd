@@ -18,6 +18,7 @@ pipeline {
     AWS_REGION = credentials("AWS_REGION")
     AWS_SECRET_ACCESS_KEY = credentials("AWS_SECRET_ACCESS_KEY")
     BUCKET_KEY = "terraform/ecs-output.json"
+    ECS_DEPLOY_TOKEN = credentials("ECS_DEPLOY_TOKEN")
     JENKINS_TOKEN = credentials("BUILD_USER_TOKEN")
     JENKINS_USER = credentials("BUILD_USER")
     CLUSTER_NAME = credentials("CLUSTER_NAME")
