@@ -81,7 +81,6 @@ pipeline {
         script {
           if (!env.IS_DESTROYING.toLowerCase().toBoolean()) {
             sh 'curl -u BuildUser:$BUILD_USER_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/Infrastructure as Code/job/Deploy-ECS-Cluster/build?token=$ECS_DEPLOY_TOKEN" > /dev/null'
-        }
           } else {
             echo "destroy cluster =O"
           }
