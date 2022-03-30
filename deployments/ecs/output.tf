@@ -4,6 +4,12 @@ output security_groups {
   description = "List of Security Group IDs"
 }
 
+output sg {
+  value       = [for sg in module.my_security_group: {(sg.get_sg.name): sg.get_sg.id}]
+  sensitive   = true
+  description = "List of Security Group IDs"
+}
+
 output load_balancer {
   value       = module.my_load_balancer.get_lbs[0].name
   sensitive   = true
