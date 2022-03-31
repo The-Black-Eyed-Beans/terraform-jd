@@ -65,11 +65,6 @@ pipeline {
           try{
             dir("deployments/ecs") {
                 gv.apply()
-                sh "terraform output -json > ecs-output.json && cp ./ecs-output.json ./tf-output.json ../../"
-                sh "cat ecs-output.json"
-                sh """cat ecs-output.json | jq '.["security_groups"]["value"]' | jq 'map({(.name): .id}) | add' > sg.json"""
-                sh """cat ecs-output.json | jq '.["service_secrets"]["value"]' | jq 'map({(.name): .arn}) | add' > secrets.json"""
-                sh "cp ./sg.json ./secrets.json ../../"
             }
           }catch (Exception e){
             currentBuild.result = "ABORTED"
@@ -84,7 +79,7 @@ pipeline {
           if (!env.IS_DESTROYING.toLowerCase().toBoolean()) {
             sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/Infrastructure as Code/job/Deploy-ECS-Cluster/build?token=$ECS_DEPLOY_TOKEN" > /dev/null'
           } else {
-            echo "destroy cluster =O"
+            echo "Destroy cluster =O"
           }
         }
       }

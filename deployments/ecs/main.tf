@@ -9,6 +9,17 @@ data "aws_subnets" "public" {
   }
 }
 
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+
+  tags = {
+    Tier = "Private"
+  }
+}
+
 module "my_security_group" {
   count                   = length(var.security_group)
 
@@ -24,8 +35,13 @@ module "my_load_balancer" {
         {name:var.alb_gateway.name,
         internal:var.alb_gateway.internal,
         load_balancer_type:var.alb_gateway.load_balancer_type,
-        security_groups:[module.my_security_group[0].get_sg.id],
-        subnets:data.aws_subnets.public.ids}
+        security_groups:[module.my_security_group[0].get_sg.id,module.my_security_group[1].get_sg.id],
+        subnets:data.aws_subnets.public.ids},
+        {name:var.alb_backend.name,
+        internal:var.alb_backend.internal,
+        load_balancer_type:var.alb_backend.load_balancer_type,
+        security_groups:[module.my_security_group[1].get_sg.id,module.my_security_group[2].get_sg.id],
+        subnets:data.aws_subnets.private.ids}
     ]
     depends_on            = [module.my_security_group]
 }

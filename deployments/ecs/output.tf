@@ -1,10 +1,4 @@
 output security_groups {
-  value       = [for sg in module.my_security_group: {name:sg.get_sg.name,id: sg.get_sg.id}]
-  sensitive   = true
-  description = "List of Security Group IDs"
-}
-
-output sg {
   value       = [for sg in module.my_security_group: {(sg.get_sg.name): sg.get_sg.id}]
   sensitive   = true
   description = "List of Security Group IDs"
@@ -12,6 +6,18 @@ output sg {
 
 output load_balancer {
   value       = module.my_load_balancer.get_lbs[0].name
+  sensitive   = true
+  description = "List of Load Balancers"
+}
+
+output backend_load_balancer {
+  value       = module.my_load_balancer.get_lbs[1].name
+  sensitive   = true
+  description = "List of Load Balancers"
+}
+
+output backend_load_balancer_dns {
+  value       = module.my_load_balancer.get_lbs[1].dns_name
   sensitive   = true
   description = "List of Load Balancers"
 }
