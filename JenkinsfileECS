@@ -12,11 +12,13 @@ pipeline {
   }
 
   environment {
+    ACCOUNT_PIPELINE_TOKEN=credentials("ACCOUNT_PIPELINE_TOKEN")
     AWS_ACCESS_KEY_ID = credentials("AWS_ACCESS_KEY_ID")
     AWS_ACCOUNT_ID = credentials("AWS_ACCOUNT_ID")
     AWS_PROFILE = credentials("AWS_PROFILE")
     AWS_REGION = credentials("AWS_REGION")
     AWS_SECRET_ACCESS_KEY = credentials("AWS_SECRET_ACCESS_KEY")
+    BANK_PIPELINE_TOKEN=credentials("BANK_PIPELINE_TOKEN")
     BUCKET_KEY = "terraform/ecs-output.json"
     ECS_DEPLOY_TOKEN = credentials("ECS_DEPLOY_TOKEN")
     JENKINS_TOKEN = credentials("BUILD_USER_TOKEN")
@@ -24,6 +26,9 @@ pipeline {
     CLUSTER_NAME = credentials("CLUSTER_NAME")
     CLUSTER_TYPE = credentials("CLUSTER_TYPE")
     IS_DESTROYING = credentials("IS_DESTROYING")
+    TRANSACTION_PIPELINE_TOKEN=credentials("TRANSACTION_PIPELINE_TOKEN")
+    UNDERWRITER_PIPELINE_TOKEN=credentials("UNDERWRITER_PIPELINE_TOKEN")
+    USER_PIPELINE_TOKEN=credentials("USER_PIPELINE_TOKEN")
   }
 
   stages {
@@ -65,11 +70,6 @@ pipeline {
           try{
             dir("deployments/ecs") {
                 gv.apply()
-                sh "terraform output -json > ecs-output.json && cp ./ecs-output.json ./tf-output.json ../../"
-                sh "cat ecs-output.json"
-                sh """cat ecs-output.json | jq '.["security_groups"]["value"]' | jq 'map({(.name): .id}) | add' > sg.json"""
-                sh """cat ecs-output.json | jq '.["service_secrets"]["value"]' | jq 'map({(.name): .arn}) | add' > secrets.json"""
-                sh "cp ./sg.json ./secrets.json ../../"
             }
           }catch (Exception e){
             currentBuild.result = "ABORTED"
@@ -82,9 +82,13 @@ pipeline {
       steps {
         script {
           if (!env.IS_DESTROYING.toLowerCase().toBoolean()) {
-            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/Infrastructure as Code/job/Deploy-ECS-Cluster/build?token=$ECS_DEPLOY_TOKEN" > /dev/null'
+            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/user/build?token=$USER_PIPELINE_TOKEN" > /dev/null'
+            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/bank/build?token=$BANK_PIPELINE_TOKEN" > /dev/null'
+            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/underwriter/build?token=$UNDERWRITER_PIPELINE_TOKEN" > /dev/null'
+            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/account/build?token=$ACCOUNT_PIPELINE_TOKEN" > /dev/null'
+            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/transaction/build?token=$TRANSACTION_PIPELINE_TOKEN" > /dev/null'
           } else {
-            echo "destroy cluster =O"
+            echo "Destroy cluster =O"
           }
         }
       }

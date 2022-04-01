@@ -29,6 +29,14 @@ variable proxy-secrets {
 
 #############
 
+variable "alb_backend" {
+  type = object({
+    name:string,
+    internal:bool,
+    load_balancer_type:string
+  })
+}
+
 variable "alb_gateway" {
   type = object({
     name:string,
