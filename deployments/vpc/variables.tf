@@ -1,5 +1,5 @@
-variable "cluster_type" {
-  type = string
+variable "is_eks_cluster" {
+  type = bool
 }
 
 variable "eks_subnet_tag_keys" {
