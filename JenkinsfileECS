@@ -84,12 +84,7 @@ pipeline {
       steps {
         script {
           if (!env.IS_DESTROYING.toLowerCase().toBoolean()) {
-            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/user/buildWithParameters?token=$USER_PIPELINE_TOKEN" --request POST > /dev/null'
-            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/bank/?buildWithParameters?token=$BANK_PIPELINE_TOKEN" --request POST > /dev/null'
-            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/underwriter/buildWithParameters?token=$UNDERWRITER_PIPELINE_TOKEN" --request POST > /dev/null'
-            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/account/buildWithParameters?token=$ACCOUNT_PIPELINE_TOKEN" --request POST > /dev/null'
-            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/transaction/buildWithParameters?token=$TRANSACTION_PIPELINE_TOKEN" --request POST > /dev/null'
-            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/backend-services/job/gateway/buildWithParameters?token=$GATEWAY_PIPELINE_TOKEN" --request POST > /dev/null'
+            sh 'curl -u $JENKINS_USER:$JENKINS_TOKEN -i "https://jenkins.theblackeyedbeans.net/job/aline-jd/job/Infrastructure%20as%20Code/job/Deploy-ECS-Cluster/buildWithParameters?token=$ECS_DEPLOY_TOKEN" --request POST > /dev/null'
           } else {
             echo "Destroy cluster =O"
           }
