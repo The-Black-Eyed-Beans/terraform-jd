@@ -36,7 +36,7 @@ pipeline {
         dir("deployments/vpc") {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.vpc terraform.tfvars --quiet --profile $AWS_PROFILE'
-          sh "echo '\ncluster_type = \"$CLUSTER_TYPE\"\n'>> terraform.tfvars"
+          sh "echo '\nis_eks_cluster = \"$IS_EKS_CLUSTER\"\n'>> terraform.tfvars"
           script {
             gv.init()
           }
