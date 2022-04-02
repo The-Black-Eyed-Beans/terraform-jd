@@ -109,7 +109,7 @@ pipeline {
                     git branch: 'dev', credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/aline-gateway-jd.git'
                     script {
                         try{
-                            sh "docker context use prod-jd && docker compose --project-name gateway-jd  --env-file ../service.env up -d"
+                            sh "docker context use prod-jd && docker compose --project-name gateway-jd  --env-file ../gateway.env up -d"
                         }catch (Exception e){
                             echo "Gateway service failed to deploy! Someone should be alerted! =O"
                         }
