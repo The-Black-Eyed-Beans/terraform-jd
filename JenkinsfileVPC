@@ -22,6 +22,7 @@ pipeline {
     ECS_PIPELINE_TOKEN = credentials("ECS_PIPELINE_TOKEN")
     EKS_PIPELINE_TOKEN = credentials("EKS_PIPELINE_TOKEN")
     IS_DESTROYING = credentials("IS_DESTROYING")
+    IS_EKS_CLUSTER = credentials("IS_EKS_CLUSTER")
   }
 
   stages {
