@@ -46,7 +46,7 @@ pipeline {
           sh 'aws s3 cp s3://beb-bucket-jd/terraform/vpc-output.json tf-output.json --quiet --profile $AWS_PROFILE'
           script {
             env.VPC_ID = sh(returnStdout: true, script: """cat tf-output.json | jq '.["outputs"]["vpc_id"]["value"]'""").trim()
-            sh "echo '\nvpc_id = $VPC_ID\n' >> terraform.tfvars"
+            sh "echo '\nvpc_id = $VPC_ID\ncluster_name = \"$CLUSTER_NAME\"\n' >> terraform.tfvars"
             gv.init()
           }
         }
