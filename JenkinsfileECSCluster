@@ -1,0 +1,133 @@
+pipeline {
+    agent {
+        node {
+            label "worker-one"
+        }
+    }
+    environment {
+        AWS_ACCOUNT_ID = credentials("AWS_ACCOUNT_ID")
+        AWS_PROFILE = credentials("AWS_PROFILE")
+        ECR_REGION = credentials("AWS_REGION")
+    }
+    stages {
+        stage("Fetch Environment Variables"){
+          steps {
+            sh "aws lambda invoke --function-name getServiceEnv service.json --profile $AWS_PROFILE"
+            sh "aws lambda invoke --function-name getGatewayEnv gateway.json --profile $AWS_PROFILE"
+          }
+        }
+        
+        stage("Constuct Env") {
+            steps {
+                sh 'aws ecr get-login-password --region $ECR_REGION --profile joshua | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com'
+                createEnvFiles()
+                sh "mkdir bank account underwriter transaction user"
+            }
+            
+        }
+        
+        // Deploy Services
+        stage("Deploy Account Service"){
+            steps {
+                dir("account") {
+                    git branch: 'dev', credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/aline-account-microservice-jd.git'
+                    script {
+                        try{
+                            sh "docker context use prod-jd && docker compose --project-name account-jd  --env-file ../service.env up -d"
+                        }catch (Exception e){
+                            echo "Account service failed to deploy! Someone should be alerted! =O"
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage("Deploy Bank Service"){
+            steps {
+                dir("bank") {
+                    git branch: 'dev', credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/aline-bank-microservice-jd.git'
+                    script {
+                        try{
+                            sh "docker context use prod-jd && docker compose --project-name bank-jd  --env-file ../service.env up -d"
+                        }catch (Exception e){
+                            echo "Bank service failed to deploy! Someone should be alerted! =O"
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage("Deploy Transaction Service"){
+            steps {
+                dir("transaction") {
+                    git branch: 'dev', credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/aline-transaction-microservice-jd.git'
+                    script {
+                        try{
+                            sh "docker context use prod-jd && docker compose --project-name transaction-jd  --env-file ../service.env up -d"
+                        }catch (Exception e){
+                            echo "Transaction service failed to deploy! Someone should be alerted! =O"
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage("Deploy Underwriter Service"){
+            steps {
+                dir("underwriter") {
+                    git branch: 'dev', credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/aline-underwriter-microservice-jd.git'
+                    script {
+                        try{
+                            sh "docker context use prod-jd && docker compose --project-name underwriter-jd  --env-file ../service.env up -d"
+                        }catch (Exception e){
+                            echo "Underwriter service failed to deploy! Someone should be alerted! =O"
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage("Deploy User Service"){
+            steps {
+                dir("user") {
+                    git branch: 'dev', credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/aline-user-microservice-jd.git'
+                    script {
+                        try{
+                            sh "docker context use prod-jd && docker compose --project-name user-jd  --env-file ../service.env up -d"
+                        }catch (Exception e){
+                            echo "User service failed to deploy! Someone should be alerted! =O"
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Deploy Gateway
+        stage("Deploy Gateway Service"){
+            steps {
+                dir("gateway") {
+                    git branch: 'dev', credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/aline-gateway-jd.git'
+                    script {
+                        try{
+                            sh "docker context use prod-jd && docker compose --project-name gateway-jd  --env-file ../service.env up -d"
+                        }catch (Exception e){
+                            echo "Gateway service failed to deploy! Someone should be alerted! =O"
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post {
+        cleanup {
+            sh "rm -rf ./*"
+        }
+    }
+}
+
+def createEnvFiles() {
+  def service = sh(returnStdout: true, script: """cat ./service.json | jq -r '.["body"]' | base64 --decode """).trim()
+  def gateway = sh(returnStdout: true, script: """cat ./gateway.json | jq -r '.["body"]' | base64 --decode""").trim()
+  writeFile file: 'service.env', text: service
+  writeFile file: 'gateway.env', text: gateway
+}
