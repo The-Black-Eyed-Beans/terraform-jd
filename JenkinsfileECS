@@ -15,7 +15,6 @@ pipeline {
     ACCOUNT_PIPELINE_TOKEN=credentials("ACCOUNT_PIPELINE_TOKEN")
     AWS_ACCESS_KEY_ID = credentials("AWS_ACCESS_KEY_ID")
     AWS_ACCOUNT_ID = credentials("AWS_ACCOUNT_ID")
-    AWS_PROFILE = credentials("AWS_PROFILE")
     AWS_REGION = credentials("AWS_REGION")
     AWS_SECRET_ACCESS_KEY = credentials("AWS_SECRET_ACCESS_KEY")
     BANK_PIPELINE_TOKEN=credentials("BANK_PIPELINE_TOKEN")
@@ -41,9 +40,9 @@ pipeline {
           gv = load "script.groovy"
         }
         dir("deployments/ecs") {
-          sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
-          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.ecs terraform.tfvars --quiet --profile $AWS_PROFILE'
-          sh 'aws s3 cp s3://beb-bucket-jd/terraform/vpc-output.json tf-output.json --quiet --profile $AWS_PROFILE'
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet'
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.ecs terraform.tfvars --quiet'
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/vpc-output.json tf-output.json --quiet'
           script {
             env.VPC_ID = sh(returnStdout: true, script: """cat tf-output.json | jq '.["outputs"]["vpc_id"]["value"]'""").trim()
             sh "echo '\nvpc_id = $VPC_ID\ncluster_name = \"$CLUSTER_NAME\"\n' >> terraform.tfvars"
