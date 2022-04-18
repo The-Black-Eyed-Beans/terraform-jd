@@ -6,20 +6,19 @@ pipeline {
     }
     environment {
         AWS_ACCOUNT_ID = credentials("AWS_ACCOUNT_ID")
-        AWS_PROFILE = credentials("AWS_PROFILE")
         ECR_REGION = credentials("AWS_REGION")
     }
     stages {
         stage("Fetch Environment Variables"){
           steps {
-            sh "aws lambda invoke --function-name getServiceEnv service.json --profile $AWS_PROFILE"
-            sh "aws lambda invoke --function-name getGatewayEnv gateway.json --profile $AWS_PROFILE"
+            sh "aws lambda invoke --function-name getServiceEnv service.json"
+            sh "aws lambda invoke --function-name getGatewayEnv gateway.json"
           }
         }
         
         stage("Constuct Env") {
             steps {
-                sh 'aws ecr get-login-password --region $ECR_REGION --profile joshua | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com'
+                sh 'aws ecr get-login-password --region $ECR_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com'
                 createEnvFiles()
                 sh "mkdir bank account underwriter transaction user"
             }
@@ -106,7 +105,7 @@ pipeline {
         stage("Deploy Gateway Service"){
             steps {
                 dir("gateway") {
-                    git branch: 'dev', credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/aline-gateway-jd.git'
+                    git branch: 'dev', credentialsId: '8144cd2a-3eab-4735-948a-7ec9e898acc4', url: 'https://github.com/The-Black-Eyed-Beans/dev-ops-jd.git'
                     script {
                         try{
                             sh "docker context use prod-jd && docker compose --project-name gateway-jd  --env-file ../gateway.env up -d"

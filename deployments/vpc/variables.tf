@@ -1,4 +1,4 @@
-variable "is_eks_cluster" {
+variable "is_ecs_cluster" {
   type = bool
 }
 

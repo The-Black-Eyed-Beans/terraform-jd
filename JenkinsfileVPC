@@ -13,7 +13,6 @@ pipeline {
 
   environment {
     AWS_ACCESS_KEY_ID = credentials("AWS_ACCESS_KEY_ID")
-    AWS_PROFILE = credentials("AWS_PROFILE")
     AWS_REGION = credentials("AWS_REGION")
     AWS_SECRET_ACCESS_KEY = credentials("AWS_SECRET_ACCESS_KEY")
     BUCKET_KEY = "terraform/vpc-output.json"
@@ -22,7 +21,7 @@ pipeline {
     ECS_PIPELINE_TOKEN = credentials("ECS_PIPELINE_TOKEN")
     EKS_PIPELINE_TOKEN = credentials("EKS_PIPELINE_TOKEN")
     IS_DESTROYING = credentials("IS_DESTROYING")
-    IS_EKS_CLUSTER = credentials("IS_EKS_CLUSTER")
+    IS_ECS = getIsECS()
   }
 
   stages {
@@ -33,11 +32,11 @@ pipeline {
           gv = load "script.groovy"
         }
         sh "echo $IS_DESTROYING > ecs-pipe-destroy"
-        sh 'aws s3 cp ecs-pipe-destroy s3://beb-bucket-jd/terraform/ecs-pipe-destroy --quiet --profile $AWS_PROFILE'
+        sh 'aws s3 cp ecs-pipe-destroy s3://beb-bucket-jd/terraform/ecs-pipe-destroy --quiet'
         dir("deployments/vpc") {
-          sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet --profile $AWS_PROFILE'
-          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.vpc terraform.tfvars --quiet --profile $AWS_PROFILE'
-          sh "echo '\nis_eks_cluster = \"$IS_EKS_CLUSTER\"\n'>> terraform.tfvars"
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/backend.json backend.json --quiet'
+          sh 'aws s3 cp s3://beb-bucket-jd/terraform/terraform.tfvars.vpc terraform.tfvars --quiet'
+          sh "echo '\nis_ecs_cluster = \"$IS_ECS\"\n'>> terraform.tfvars"
           script {
             gv.init()
           }
@@ -94,4 +93,8 @@ pipeline {
       }
     }
   }
+}
+
+def getIsECS() {
+    return sh(returnStdout: true, script: """aws secretsmanager  get-secret-value --secret-id prod/infrastructure/config --region us-east-2 | jq -r '.["SecretString"]' | jq -r '.["is_ecs"]'""").trim().toBoolean()
 }
